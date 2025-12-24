@@ -76,17 +76,15 @@ contract Hangman is ZamaEthereumConfig {
         for (uint256 i = 0; i < len; i++) {  
             game.secret[i] = FHE.fromExternal(encryptedLetters[i], proof);
             game.revealed[i] = FHE.asEbool(false);
+
+            FHE.allow(game.secret[i], game.player);
+            FHE.allow(game.guessed[i], game.player);
+            FHE.allow(game.revealed[i], game.player);
+
+            FHE.allowThis(game.secret[i]);
+            FHE.allowThis(game.guessed[i]);
+            FHE.allowThis(game.revealed[i]);
         }
-
-        // Allow player to decrypt off-chain
-        FHE.allow(game.secret, game.player);
-        FHE.allow(game.revealed, game.player);
-        FHE.allow(game.guessed, game.player);
-
-        // Allow contract to manage encrypted state
-        FHE.allowThis(game.secret);
-        FHE.allowThis(game.revealed);
-        FHE.allowThis(game.guessed);
 
         game.secretSet = true;
 
