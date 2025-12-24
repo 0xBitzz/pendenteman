@@ -96,9 +96,7 @@ contract Hangman is ZamaEthereumConfig {
     /// @notice Player submits guess
     function submitGuess(
         uint256 gameId,
-        uint8 clearLetter,
-        externalEuint8 encryptedGuess,
-        bytes calldata proof
+        uint8 clearLetter
     ) external onlyPlayer(gameId) {
         Game storage game = games[gameId];
         require(msg.sender != address(0), "Invalid address");
@@ -107,12 +105,7 @@ contract Hangman is ZamaEthereumConfig {
         require(game.lives > 0, "No lives left");
         require(clearLetter >= 1 && clearLetter <= 26, "Invalid letter");
 
-        euint8 guess = FHE.fromExternal(encryptedGuess, proof);
-
-        for (uint256 i = 1; i <= 26; i++) {
-            ebool isThis = FHE.eq(guess, FHE.asEuint8(uint8(i)));
-            game.guessed[i] = FHE.or(game.guessed[i], isThis);
-        }
+        euint8 guess = FHE.asEuint8(clearLetter);
 
         // Allow player to decrypt guess off-chain
         FHE.allow(guess, game.player);
