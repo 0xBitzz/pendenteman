@@ -12,6 +12,7 @@ contract Hangman is ZamaEthereumConfig {
         address player;
         euint8[] secret;
         ebool[] revealed;
+        euint8[27] guessed; // 1..26
         uint8 lives;
         string category;
         bool secretSet;
@@ -69,18 +70,18 @@ contract Hangman is ZamaEthereumConfig {
         game.category = category;
 
         uint256 len = encryptedLetters.length;
-        game.secret = new euint8[](len);
-        game.revealed = new ebool[](len);
+        game.secret = new euint8[](uint8(len));
+        game.revealed = new ebool[](uint8(len));
 
-        for (uint256 i = 0; i < len; i++) {  
+        for (uint8 i = 0; i < len; i++) {  
             game.secret[i] = FHE.fromExternal(encryptedLetters[i], proof);
             game.revealed[i] = FHE.asEbool(false);
 
-            FHE.allow(game.secret[i], game.player);
-            FHE.allow(game.revealed[i], game.player);
-
             FHE.allowThis(game.secret[i]);
+            FHE.allow(game.secret[i], game.player);
+
             FHE.allowThis(game.revealed[i]);
+            FHE.allow(game.revealed[i], game.player);
         }
 
         game.secretSet = true;
@@ -100,11 +101,9 @@ contract Hangman is ZamaEthereumConfig {
         require(game.lives > 0, "No lives left");
         require(clearLetter >= 1 && clearLetter <= 26, "Invalid letter");
 
-        euint8 guess = FHE.asEuint8(clearLetter);
-
         // Allow player to decrypt guess off-chain
-        FHE.allow(guess, game.player);
-        FHE.allowThis(guess);
+        FHE.allow(game.guessed[clearLetter], game.player);
+        FHE.allowThis(game.guessed[clearLetter]);
 
         emit GuessSubmitted(gameId, msg.sender, clearLetter);
     }
