@@ -12,7 +12,6 @@ contract Hangman is ZamaEthereumConfig {
         address player;
         euint8[] secret;
         ebool[] revealed;
-        ebool[27] guessed; // 1..26
         uint8 lives;
         string category;
         bool secretSet;
@@ -78,11 +77,9 @@ contract Hangman is ZamaEthereumConfig {
             game.revealed[i] = FHE.asEbool(false);
 
             FHE.allow(game.secret[i], game.player);
-            FHE.allow(game.guessed[i], game.player);
             FHE.allow(game.revealed[i], game.player);
 
             FHE.allowThis(game.secret[i]);
-            FHE.allowThis(game.guessed[i]);
             FHE.allowThis(game.revealed[i]);
         }
 
